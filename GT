@@ -1,0 +1,37 @@
+# Название кода: "RandomNumbersToGitHub"
+
+import random
+import os
+from github import Github
+
+def save_random_numbers():
+    numbers = [random.randint(1, 100) for _ in range(10)]  # Создаем список из 10 случайных чисел от 1 до 100
+    
+    # Получаем токен доступа к GitHub из переменной окружения
+    github_token = os.environ.get('GITHUB_TOKEN')
+    
+    if github_token:
+        # Создаем экземпляр класса Github, используя токен доступа
+        g = Github(github_token)
+        
+        # Получаем пользователя
+        user = g.get_user()
+        
+        # Получаем репозиторий (если такой уже существует) или создаем новый
+        repo_name = 'random_numbers'
+        repo = None
+        try:
+            repo = user.get_repo(repo_name)
+        except:
+            repo = user.create_repo(repo_name)
+        
+        # Создаем новый файл и записываем в него случайные числа
+        file_name = 'random_numbers.txt'
+        file_content = '\n'.join(map(str, numbers))
+        repo.create_file(file_name, "Add random numbers", file_content)
+        
+        print(f"Случайные числа сохранены в репозиторий {user.login}/{repo_name} на GitHub.")
+    else:
+        print("Токен доступа к GitHub не найден. Установите переменную окружения 'GITHUB_TOKEN'.")
+
+save_random_numbers()
